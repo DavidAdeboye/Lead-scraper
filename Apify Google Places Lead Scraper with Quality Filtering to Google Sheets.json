@@ -1,0 +1,391 @@
+{
+  "name": "Apify Google Places Lead Scraper with Quality Filtering to Google Sheets",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "0dd044e2-a5ba-4f08-a55c-a2101e60c728",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "id-1",
+              "leftValue": "={{ $json.totalScore }}",
+              "rightValue": 4.2,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "id-2",
+              "leftValue": "={{ $json.reviewsCount }}",
+              "rightValue": 20,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "id-3",
+              "leftValue": "={{ $json.website }}",
+              "operator": {
+                "type": "string",
+                "operation": "empty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b3f28b7f-3584-4c77-a33a-4311190d3238",
+      "name": "Filter Quality Leads",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2544,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1u5zWpcZ5p-yfQ85KEoR8r0MCHRxxrCUwJXqZsQ75yZo",
+          "mode": "list",
+          "cachedResultName": "instacheck",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u5zWpcZ5p-yfQ85KEoR8r0MCHRxxrCUwJXqZsQ75yZo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u5zWpcZ5p-yfQ85KEoR8r0MCHRxxrCUwJXqZsQ75yZo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reviews",
+              "displayName": "Reviews",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Maps URL",
+              "displayName": "Maps URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "displayName": "Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "9d100402-3112-4b1e-9661-6d1b6aa3ccfc",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2992,
+        304
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "cj62IfTxMfjfVSIh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/compass~crawler-google-places/run-sync-get-dataset-items?token=apify_api_wrgF39zPNrb3FCpo7Du0nFyDkbhwMb22nzua",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"searchStringsArray\": [{{ $json.queries }}],\n  \"maxCrawledPlacesPerSearch\": 10\n}",
+        "options": {}
+      },
+      "id": "22ecf737-47b2-4a6b-adc7-0ddd78f80f8d",
+      "name": "Run Apify & Get Results",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2320,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "Name",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "Rating",
+              "value": "={{ $json.totalScore }}",
+              "type": "number"
+            },
+            {
+              "id": "id-3",
+              "name": "Reviews",
+              "value": "={{ $json.reviewsCount }}",
+              "type": "number"
+            },
+            {
+              "id": "id-4",
+              "name": "Phone",
+              "value": "={{ $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-5",
+              "name": "Address",
+              "value": "={{ $json.address }}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "Maps URL",
+              "value": "=https://www.google.com/maps/place/?q=place_id:{{ $json.placeId }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "Website",
+              "value": "={{ $json.website || 'No website' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9855db3d-f9de-4534-88f2-7ffee323b223",
+      "name": "Format Output Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2768,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "queries",
+              "value": "[\"plumber in Phoenix Arizona\", \"plumber in Dallas Texas\"]",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "05699215-6015-42ab-b827-791a8fdeea03",
+      "name": "Search Query Control Panel",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1648,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "queries",
+        "options": {}
+      },
+      "id": "925ede5c-acb7-440a-ba79-1cb6c4d51769",
+      "name": "Split Into Individual Searches",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1872,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 90
+      },
+      "id": "efe7c9a1-8874-4276-9d40-3b2e84ed2589",
+      "name": "Prevent API Overload",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2096,
+        304
+      ],
+      "webhookId": "5195eb28-feb3-4585-ac10-4bf859504d1e"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search Query Control Panel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Quality Leads": {
+      "main": [
+        [
+          {
+            "node": "Format Output Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Apify & Get Results": {
+      "main": [
+        [
+          {
+            "node": "Filter Quality Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Output Data": {
+      "main": [
+        [
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Query Control Panel": {
+      "main": [
+        [
+          {
+            "node": "Split Into Individual Searches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Individual Searches": {
+      "main": [
+        [
+          {
+            "node": "Prevent API Overload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prevent API Overload": {
+      "main": [
+        [
+          {
+            "node": "Run Apify & Get Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "availableInMCP": false
+  },
+  "versionId": "9e6e663f-7551-46e1-811a-8bc3161b701c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "79431acb7683741f657077a7c79bbc63d17952d6c161732f3bf44769e1411140"
+  },
+  "id": "hk9Jd327BdMUcpcB",
+  "tags": []
+}
